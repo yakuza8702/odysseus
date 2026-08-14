@@ -3,5 +3,5 @@ FROM ${BASE_IMAGE}
 
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libvulkan-dev vulkan-tools glslang-tools \
+    libvulkan-dev vulkan-tools glslang-tools glslc \
     && rm -rf /var/lib/apt/lists/*
