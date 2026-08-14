@@ -136,33 +136,6 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Read project version from pyproject.toml
-        id: version
-        run: |
-          VERSION=$(python3 -c "
-          import re, sys
-          try:
-              import tomllib
-          except ImportError:
-              import tomli as tomllib
-          with open('pyproject.toml', 'rb') as f:
-              data = tomllib.load(f)
-          v = data.get('project', {}).get('version') \
-              or data.get('tool', {}).get('poetry', {}).get('version')
-          print(v or '')
-          " 2>/dev/null || true)
-
-          if [ -z "$VERSION" ]; then
-            echo "::warning::Could not read version from pyproject.toml, falling back to 0.0.0"
-            VERSION="0.0.0"
-          fi
-
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Short SHA
-        id: shortsha
-        run: echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -181,9 +154,8 @@ jobs:
           push: true
           platforms: linux/amd64
           build-args: |
-            BASE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-${{ github.event.inputs.branch }}.${{ steps.shortsha.outputs.sha }}
+            BASE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-${{ github.event.inputs.branch }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-${{ github.event.inputs.branch }}.${{ steps.shortsha.outputs.sha }}-vulkan
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-${{ github.event.inputs.branch }}-vulkan
           cache-from: type=gha
           cache-to: type=gha,mode=max
