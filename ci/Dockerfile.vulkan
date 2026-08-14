@@ -5,4 +5,3 @@ USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libvulkan-dev vulkan-tools glslang-tools \
     && rm -rf /var/lib/apt/lists/*
-USER odysseus
